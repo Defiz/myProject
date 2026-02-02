@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: projectCRUD
+
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/vladpr
+    username: postgres
+    password: 247316
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
