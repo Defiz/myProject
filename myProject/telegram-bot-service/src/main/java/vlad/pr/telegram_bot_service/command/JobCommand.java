@@ -1,18 +1,19 @@
 package vlad.pr.telegram_bot_service.command;
 
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.generics.TelegramClient;
+import vlad.pr.telegram_bot_service.events.MessageEvent;
 
+@AllArgsConstructor
 @Component
 public class JobCommand implements Command {
-    private final TelegramClient telegramClient;
 
-    public JobCommand(TelegramClient telegramClient) {
-        this.telegramClient = telegramClient;
-    }
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public boolean canHandle(Update update) {
@@ -31,7 +32,7 @@ public class JobCommand implements Command {
                     .chatId(chatId)
                     .text("Напишите место работы (например Москва, Кутузовский проспект 32)")
                     .build();
-            telegramClient.execute(message);
+            eventPublisher.publishEvent(new MessageEvent(this, message));
         }
     }
 
