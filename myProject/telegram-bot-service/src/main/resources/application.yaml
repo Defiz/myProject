@@ -4,3 +4,7 @@ spring:
 
 server:
   port: 8081
+
+telegram:
+  bot:
+    token: "8583495884:AAH9DCx7vRQF0tqAlbKoyP9awW-cu7qPA24"
