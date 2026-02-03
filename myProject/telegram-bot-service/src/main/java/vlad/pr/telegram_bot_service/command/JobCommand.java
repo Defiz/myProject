@@ -2,12 +2,18 @@ package vlad.pr.telegram_bot_service.command;
 
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import vlad.pr.telegram_bot_service.events.MessageEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
 @Component
