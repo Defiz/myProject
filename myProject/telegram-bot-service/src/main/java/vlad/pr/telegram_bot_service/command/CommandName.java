@@ -6,8 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum CommandName {
-    START("START_COMMAND"),
-    JOB("JOB_COMMAND");
+    START("START_COMMAND");
 
     private final String name;
     }
