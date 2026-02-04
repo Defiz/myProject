@@ -25,13 +25,13 @@ public class User {
     @Column(unique = true)
     private String name;
 
-    @Column(name = "age")
+    @Column
     private int age;
 
-    @Column(name = "email")
+    @Column
     private String email;
 
-    @Column(name = "password")
+    @Column
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -41,6 +41,19 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    @OneToOne(mappedBy = "user")
-    private Telegram telegram;
+    @Column
+    private Integer tgChatId;
+
+    @Column
+    private String tgUserName;
+
+    @Column
+    private String homeAddress;
+
+    @Column
+    private String jobAddress;
+
+    @Column
+    private String jobTime;
+
 }

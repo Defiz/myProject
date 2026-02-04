@@ -29,7 +29,6 @@ public class RegistrationService {
         }
         User user = userMapper.toUser(userDto);
         Role userRole = roleRepository.findByRole("ROLE_USER");
-        System.out.println("ROLE FROM DB: " + userRole);
         user.setRoles(Set.of(userRole));
         userRepository.save(user);
         return userMapper.toUserRegistrationDto(user);

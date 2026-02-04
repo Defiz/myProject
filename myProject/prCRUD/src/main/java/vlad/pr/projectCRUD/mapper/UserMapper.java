@@ -93,4 +93,15 @@ public class UserMapper {
         userRequestDto.setRoles(roleToString(user.getRoles()));
         return userRequestDto;
     }
+
+    public User toUser(TelegramDto dto, User existingUser) {
+        User user = existingUser != null ? existingUser : new User();
+        user.setName(dto.getTgUserName());
+        user.setPassword(dto.getTgUserName());
+        user.setTgChatId(dto.getTgChatId());
+        user.setHomeAddress(dto.getHomeAddress());
+        user.setJobAddress(dto.getJobAddress());
+        user.setJobTime(dto.getJobTime());
+        return user;
+    }
 }
