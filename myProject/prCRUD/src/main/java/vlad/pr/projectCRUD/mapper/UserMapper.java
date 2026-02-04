@@ -2,10 +2,7 @@ package vlad.pr.projectCRUD.mapper;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import vlad.pr.projectCRUD.dto.UserListDto;
-import vlad.pr.projectCRUD.dto.UserProfileDto;
-import vlad.pr.projectCRUD.dto.UserRegistrationDto;
-import vlad.pr.projectCRUD.dto.UserRequestDto;
+import vlad.pr.projectCRUD.dto.*;
 import vlad.pr.projectCRUD.model.Role;
 import vlad.pr.projectCRUD.model.User;
 import vlad.pr.projectCRUD.util.StringToRoleConvertor;
