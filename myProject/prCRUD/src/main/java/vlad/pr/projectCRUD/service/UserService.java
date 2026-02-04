@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import vlad.pr.projectCRUD.dto.UserListDto;
 import vlad.pr.projectCRUD.dto.UserProfileDto;
 import vlad.pr.projectCRUD.dto.UserRequestDto;
-import vlad.pr.projectCRUD.dto.TelegramAccountDto;
 import vlad.pr.projectCRUD.mapper.UserMapper;
 import vlad.pr.projectCRUD.model.User;
 import vlad.pr.projectCRUD.repository.UserRepository;

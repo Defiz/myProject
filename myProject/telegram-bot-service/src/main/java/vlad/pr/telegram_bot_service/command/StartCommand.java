@@ -26,7 +26,7 @@ public class StartCommand implements Command {
     @Override
     public void handle(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            long chatId = update.getMessage().getChatId();
+            Long chatId = update.getMessage().getChatId();
             SendMessage message = SendMessage.builder()
                     .chatId(chatId)
                     .text("Привет! Выбери действие:")

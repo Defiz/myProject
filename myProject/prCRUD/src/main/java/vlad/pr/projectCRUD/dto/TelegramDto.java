@@ -3,7 +3,7 @@ package vlad.pr.projectCRUD.dto;
 import lombok.Data;
 
 @Data
-public class TelegramAccountDto {
+public class TelegramDto {
     private String tgUserName;
     private Integer tgChatId;
     private String homeAddress;

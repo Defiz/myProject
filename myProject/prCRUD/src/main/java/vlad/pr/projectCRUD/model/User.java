@@ -42,5 +42,5 @@ public class User {
     private Set<Role> roles = new HashSet<>();
 
     @OneToOne(mappedBy = "user")
-    private TelegramAccount telegramAccount;
+    private Telegram telegram;
 }

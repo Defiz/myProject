@@ -52,7 +52,9 @@ public class TextMessageCommand implements Command {
                 .text("Сохранено: " + text)
                 .build();
         eventPublisher.publishEvent(new MessageEvent(this, message));
-
+        if (dto.getHomeAddress() != null && dto.getJobAddress() != null && dto.getJobTime() != null) {
+            userService.sendUserTelegram(dto);
+        }
     }
 
     @Override
