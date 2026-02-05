@@ -24,8 +24,8 @@ import java.util.Set;
 
 @AllArgsConstructor
 @Service
-@Transactional(readOnly = true)
 public class UserService implements UserDetailsService {
+    private final GeoService geoService;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -55,6 +55,11 @@ public class UserService implements UserDetailsService {
     public UserProfileDto getUserByName(String name) {
         User user = userRepository.findByName(name).orElseThrow(() -> new UsernameNotFoundException("User not found!"));
         return userMapper.toUserProfileDto(user);
+    }
+
+    public void createUserWithTimezone(TelegramDto userDto) {
+        String timezone = geoService.fetchTimeZone(userDto.getHomeAddress());
+        createUser(userDto, timezone);
     }
 
     @Transactional

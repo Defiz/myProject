@@ -8,14 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import vlad.pr.projectCRUD.config.DadataProperties;
 import vlad.pr.projectCRUD.dto.DadataAddressResponseDto;
-import vlad.pr.projectCRUD.dto.TelegramDto;
 
 import java.util.Collections;
 
 @RequiredArgsConstructor
 @Service
 public class GeoService {
-    private final UserService userService;
     private final RestTemplate restTemplate;
     private final DadataProperties dadataProperties;
 
@@ -29,10 +27,5 @@ public class GeoService {
         HttpEntity<String[]> request = new HttpEntity<>(body, headers);
         DadataAddressResponseDto[] response = restTemplate.postForObject(dadataProperties.getApiUrl(), request, DadataAddressResponseDto[].class);
         return response[0].getTimezone();
-    }
-
-    public void createUserWithTimezone(TelegramDto userDto) {
-        String timezone = fetchTimeZone(userDto.getHomeAddress());
-        userService.createUser(userDto, timezone);
     }
 }

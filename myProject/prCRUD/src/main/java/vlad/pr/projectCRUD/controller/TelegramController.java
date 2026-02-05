@@ -14,11 +14,11 @@ import vlad.pr.projectCRUD.service.UserService;
 @RestController
 @RequestMapping("/api/telegram")
 public class TelegramController {
-    private final GeoService geoService;
+    private final UserService userService;
 
     @PostMapping
     public ResponseEntity<Void> saveTelegramUser(@RequestBody TelegramDto userDto) {
-        geoService.createUserWithTimezone(userDto);
+        userService.createUserWithTimezone(userDto);
         return ResponseEntity.ok().build();
     }
 }
