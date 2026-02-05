@@ -14,26 +14,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Component
 public class UserMapper {
-
     private final StringToRoleConvertor stringToRoleConvertor;
-
-    public List<UserListDto> toDtoList(List<User> users) {
-        return users.stream()
-                .map(this::toUserListDto)
-                .toList();
-    }
-
-    public Set<String> roleToString(Set<Role> roles) {
-        return roles.stream()
-                .map(Role::getRole)
-                .collect(Collectors.toSet());
-    }
-
-    public Set<Role> stringToRole(Set<String> roles) {
-        return roles.stream()
-                .map(stringToRoleConvertor::convert)
-                .collect(Collectors.toSet());
-    }
 
     public UserListDto toUserListDto(User user) {
         UserListDto userListDto = new UserListDto();
@@ -94,14 +75,33 @@ public class UserMapper {
         return userRequestDto;
     }
 
-    public User toUser(TelegramDto dto, User existingUser) {
-        User user = existingUser != null ? existingUser : new User();
+    public User toUser(TelegramDto dto) {
+        User user = new User();
         user.setName(dto.getTgUserName());
         user.setPassword(dto.getTgUserName());
+        user.setTgUserName(dto.getTgUserName());
         user.setTgChatId(dto.getTgChatId());
         user.setHomeAddress(dto.getHomeAddress());
         user.setJobAddress(dto.getJobAddress());
         user.setJobTime(dto.getJobTime());
         return user;
+    }
+
+    public List<UserListDto> toDtoList(List<User> users) {
+        return users.stream()
+                .map(this::toUserListDto)
+                .toList();
+    }
+
+    public Set<String> roleToString(Set<Role> roles) {
+        return roles.stream()
+                .map(Role::getRole)
+                .collect(Collectors.toSet());
+    }
+
+    public Set<Role> stringToRole(Set<String> roles) {
+        return roles.stream()
+                .map(stringToRoleConvertor::convert)
+                .collect(Collectors.toSet());
     }
 }

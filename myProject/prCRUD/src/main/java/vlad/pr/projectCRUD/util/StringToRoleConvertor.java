@@ -9,7 +9,6 @@ import vlad.pr.projectCRUD.service.RoleService;
 @AllArgsConstructor
 @Component
 public class StringToRoleConvertor implements Converter<String, Role> {
-
     private final RoleService roleService;
 
     @Override

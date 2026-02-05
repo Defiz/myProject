@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-
     @GetMapping
     public String listUsers() {
         return "admin-list";

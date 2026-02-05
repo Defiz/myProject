@@ -17,7 +17,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Service
 public class RegistrationService {
-
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final UserMapper userMapper;

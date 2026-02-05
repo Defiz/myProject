@@ -10,7 +10,6 @@ import vlad.pr.projectCRUD.service.RegistrationService;
 @RestController
 @RequestMapping("/api/admin")
 public class AuthRestController {
-
     private final RegistrationService registrationService;
 
     @PostMapping("/registration")

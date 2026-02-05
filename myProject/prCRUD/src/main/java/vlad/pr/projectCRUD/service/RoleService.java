@@ -10,7 +10,6 @@ import vlad.pr.projectCRUD.repository.RoleRepository;
 @Service
 @Transactional(readOnly = true)
 public class RoleService {
-
     private final RoleRepository roleRepository;
 
     public Role getRoleByName(String role) {

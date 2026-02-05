@@ -10,7 +10,6 @@ import vlad.pr.projectCRUD.service.UserService;
 @AllArgsConstructor
 @Component
 public class UserValidator implements Validator {
-
     private final UserService userService;
 
     @Override

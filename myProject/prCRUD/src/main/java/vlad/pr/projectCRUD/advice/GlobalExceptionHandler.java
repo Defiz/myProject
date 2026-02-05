@@ -9,7 +9,6 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
     @ExceptionHandler
     public ResponseEntity<?> handlerUserExist(ResponseStatusException ex) {
         return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));

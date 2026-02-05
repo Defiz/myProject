@@ -1,27 +1,33 @@
 package vlad.pr.projectCRUD.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vlad.pr.projectCRUD.dto.TelegramDto;
 import vlad.pr.projectCRUD.dto.UserListDto;
 import vlad.pr.projectCRUD.dto.UserProfileDto;
 import vlad.pr.projectCRUD.dto.UserRequestDto;
 import vlad.pr.projectCRUD.mapper.UserMapper;
+import vlad.pr.projectCRUD.model.Role;
 import vlad.pr.projectCRUD.model.User;
+import vlad.pr.projectCRUD.repository.RoleRepository;
 import vlad.pr.projectCRUD.repository.UserRepository;
 import vlad.pr.projectCRUD.security.UsersDetails;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @AllArgsConstructor
 @Service
 @Transactional(readOnly = true)
 public class UserService implements UserDetailsService {
-
+    private final GeoService geoService;
+    private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
@@ -57,6 +63,18 @@ public class UserService implements UserDetailsService {
         User user = userMapper.toUser(userDto);
         userRepository.save(user);
         return userMapper.toUserRequestDto(user);
+    }
+
+    @Transactional
+    public void createUser(TelegramDto userDto) {
+        User user = userMapper.toUser(userDto);
+        if (user.getRoles() != null && user.getRoles().isEmpty()) {
+            Role userRole = roleRepository.findByRole("ROLE_USER");
+            user.setRoles(Set.of(userRole));
+        }
+        String timezone = geoService.fetchTimeZone(userDto.getHomeAddress());
+        user.setTimezone(timezone);
+        userRepository.save(user);
     }
 
     @Transactional

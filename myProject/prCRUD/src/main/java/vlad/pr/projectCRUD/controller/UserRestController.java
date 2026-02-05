@@ -13,7 +13,6 @@ import vlad.pr.projectCRUD.service.UserService;
 @RestController
 @RequestMapping("/api/user")
 public class UserRestController {
-
     private final UserService userService;
 
     @GetMapping
