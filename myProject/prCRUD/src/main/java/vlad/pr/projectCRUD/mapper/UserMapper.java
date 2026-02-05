@@ -75,8 +75,8 @@ public class UserMapper {
         return userRequestDto;
     }
 
-    public User toUser(TelegramDto dto) {
-        User user = new User();
+    public User toUser(TelegramDto dto, User existingUser) {
+        User user = existingUser != null ? existingUser : new User();
         user.setName(dto.getTgUserName());
         user.setPassword(dto.getTgUserName());
         user.setTgUserName(dto.getTgUserName());

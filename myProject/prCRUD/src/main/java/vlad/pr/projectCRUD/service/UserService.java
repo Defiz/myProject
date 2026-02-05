@@ -26,7 +26,6 @@ import java.util.Set;
 @Service
 @Transactional(readOnly = true)
 public class UserService implements UserDetailsService {
-    private final GeoService geoService;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -66,13 +65,13 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void createUser(TelegramDto userDto) {
-        User user = userMapper.toUser(userDto);
+    public void createUser(TelegramDto userDto, String timezone) {
+        User existingUser = userRepository.findByTgChatId(userDto.getTgChatId());
+        User user = userMapper.toUser(userDto, existingUser);
         if (user.getRoles() != null && user.getRoles().isEmpty()) {
             Role userRole = roleRepository.findByRole("ROLE_USER");
             user.setRoles(Set.of(userRole));
         }
-        String timezone = geoService.fetchTimeZone(userDto.getHomeAddress());
         user.setTimezone(timezone);
         userRepository.save(user);
     }
