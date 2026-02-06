@@ -68,7 +68,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void createOrUpdateUser(TelegramDto userDto, DadataAddressResponseDto home, DadataAddressResponseDto job) {
-        User user = userRepository.findByTgChatId(userDto.getTgChatId());
+        User user = userRepository.findByTgChatId(userDto.getTgChatId()).orElseGet(User::new);
         userMapper.toUser(user, userDto, home, job);
         if (user.getRoles() != null && user.getRoles().isEmpty()) {
             Role userRole = roleRepository.findByRole("ROLE_USER");
