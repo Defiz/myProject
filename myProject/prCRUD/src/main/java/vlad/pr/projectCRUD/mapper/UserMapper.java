@@ -75,8 +75,7 @@ public class UserMapper {
         return userRequestDto;
     }
 
-    public User toUser(TelegramDto dto, User existingUser) {
-        User user = existingUser != null ? existingUser : new User();
+    public void toUser(User user, TelegramDto dto, DadataAddressResponseDto home, DadataAddressResponseDto job) {
         user.setName(dto.getTgUserName());
         user.setPassword(dto.getTgUserName());
         user.setTgUserName(dto.getTgUserName());
@@ -84,7 +83,11 @@ public class UserMapper {
         user.setHomeAddress(dto.getHomeAddress());
         user.setJobAddress(dto.getJobAddress());
         user.setJobTime(dto.getJobTime());
-        return user;
+        user.setHomeLat(home.getGeoLat());
+        user.setHomeLon(home.getGeoLon());
+        user.setJobLat(job.getGeoLat());
+        user.setJobLon(job.getGeoLon());
+        user.setTimezone(home.getTimezone());
     }
 
     public List<UserListDto> toDtoList(List<User> users) {

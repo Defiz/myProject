@@ -1,16 +1,12 @@
 package vlad.pr.projectCRUD.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vlad.pr.projectCRUD.dto.TelegramDto;
-import vlad.pr.projectCRUD.dto.UserListDto;
-import vlad.pr.projectCRUD.dto.UserProfileDto;
-import vlad.pr.projectCRUD.dto.UserRequestDto;
+import vlad.pr.projectCRUD.dto.*;
 import vlad.pr.projectCRUD.mapper.UserMapper;
 import vlad.pr.projectCRUD.model.Role;
 import vlad.pr.projectCRUD.model.User;
@@ -58,8 +54,9 @@ public class UserService implements UserDetailsService {
     }
 
     public void createUserWithTimezone(TelegramDto userDto) {
-        String timezone = geoService.fetchTimeZone(userDto.getHomeAddress());
-        createUser(userDto, timezone);
+        DadataAddressResponseDto home = geoService.fetchTimeZone(userDto.getHomeAddress());
+        DadataAddressResponseDto job = geoService.fetchTimeZone(userDto.getJobAddress());
+        createOrUpdateUser(userDto, home, job);
     }
 
     @Transactional
@@ -70,14 +67,13 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void createUser(TelegramDto userDto, String timezone) {
-        User existingUser = userRepository.findByTgChatId(userDto.getTgChatId());
-        User user = userMapper.toUser(userDto, existingUser);
+    public void createOrUpdateUser(TelegramDto userDto, DadataAddressResponseDto home, DadataAddressResponseDto job) {
+        User user = userRepository.findByTgChatId(userDto.getTgChatId());
+        userMapper.toUser(user, userDto, home, job);
         if (user.getRoles() != null && user.getRoles().isEmpty()) {
             Role userRole = roleRepository.findByRole("ROLE_USER");
             user.setRoles(Set.of(userRole));
         }
-        user.setTimezone(timezone);
         userRepository.save(user);
     }
 

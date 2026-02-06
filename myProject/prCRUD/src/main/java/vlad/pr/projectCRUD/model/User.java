@@ -20,42 +20,39 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     @Column(unique = true)
     private String name;
-
     @Column
     private int age;
-
     @Column
     private String email;
-
     @Column
     private String password;
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
-
     @Column
     private Integer tgChatId;
-
     @Column
     private String tgUserName;
-
     @Column
     private String homeAddress;
-
     @Column
     private String jobAddress;
-
     @Column
     private String jobTime;
-
     @Column
     private String timezone;
+    @Column
+    private String homeLat;
+    @Column
+    private String homeLon;
+    @Column
+    private String jobLat;
+    @Column
+    private String jobLon;
 
 }

@@ -17,8 +17,8 @@ public class GeoService {
     private final RestTemplate restTemplate;
     private final DadataProperties dadataProperties;
 
-    public String fetchTimeZone(String homeAddress) {
-        String[] body = new String[]{homeAddress};
+    public DadataAddressResponseDto fetchTimeZone(String address) {
+        String[] body = new String[]{address};
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -26,6 +26,6 @@ public class GeoService {
         headers.set("X-Secret", dadataProperties.getSecretToken());
         HttpEntity<String[]> request = new HttpEntity<>(body, headers);
         DadataAddressResponseDto[] response = restTemplate.postForObject(dadataProperties.getApiUrl(), request, DadataAddressResponseDto[].class);
-        return response[0].getTimezone();
+        return response[0];
     }
 }
