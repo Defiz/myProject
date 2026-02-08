@@ -43,5 +43,4 @@ public class UserService {
     public void sendUserTelegram(UserTelegramDto userDto) {
         restTemplate.postForEntity(coreServiceUrl, userDto, Void.class);
     }
-
 }

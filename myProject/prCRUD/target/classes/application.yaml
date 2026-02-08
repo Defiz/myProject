@@ -25,3 +25,10 @@ dadata:
   token: "c7556dfd858a89a83b6bcf29b3a4f9cd87d266fb"
   secret-token: "36d50b82413e19baf08a0b2d60893aca393a255e"
   api-url: "https://cleaner.dadata.ru/api/v1/clean/address"
+
+two-gis:
+  url: "https://routing.api.2gis.com/routing/7.0.0/global?key=738fa2b2-0290-4ebb-bd60-bcb919219e2b"
+
+telegram:
+  service:
+    url: "http://localhost:8081/api/core"

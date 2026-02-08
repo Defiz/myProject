@@ -7,5 +7,4 @@ public interface Command {
 
     void handle(Update update);
 
-    String getCommand();
 }

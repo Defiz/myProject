@@ -8,17 +8,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vlad.pr.projectCRUD.dto.TelegramDto;
 import vlad.pr.projectCRUD.service.GeoService;
-import vlad.pr.projectCRUD.service.UserService;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/telegram")
 public class TelegramController {
-    private final UserService userService;
+    private final GeoService geoService;
 
     @PostMapping
     public ResponseEntity<Void> saveTelegramUser(@RequestBody TelegramDto userDto) {
-        userService.createUserWithTimezone(userDto);
+        geoService.createUserWithGeoData(userDto);
         return ResponseEntity.ok().build();
     }
 }

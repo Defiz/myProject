@@ -57,10 +57,5 @@ public class StartCallbackCommand implements Command {
             }
         }
     }
-
-    @Override
-    public String getCommand() {
-        return CommandName.START.getName();
-    }
 }
 

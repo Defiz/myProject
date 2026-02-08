@@ -8,8 +8,8 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DadataAddressResponseDto {
     @JsonProperty("geo_lat")
-    private String geoLat;
+    private double geoLat;
     @JsonProperty("geo_lon")
-    private String geoLon;
+    private double geoLon;
     private String timezone;
 }

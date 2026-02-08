@@ -56,9 +56,4 @@ public class TextMessageCommand implements Command {
             userService.sendUserTelegram(dto);
         }
     }
-
-    @Override
-    public String getCommand() {
-        return "text";
-    }
 }

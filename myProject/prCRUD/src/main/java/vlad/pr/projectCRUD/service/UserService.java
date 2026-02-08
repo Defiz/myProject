@@ -1,6 +1,6 @@
 package vlad.pr.projectCRUD.service;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,14 +14,14 @@ import vlad.pr.projectCRUD.repository.RoleRepository;
 import vlad.pr.projectCRUD.repository.UserRepository;
 import vlad.pr.projectCRUD.security.UsersDetails;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class UserService implements UserDetailsService {
-    private final GeoService geoService;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -53,10 +53,11 @@ public class UserService implements UserDetailsService {
         return userMapper.toUserProfileDto(user);
     }
 
-    public void createUserWithTimezone(TelegramDto userDto) {
-        DadataAddressResponseDto home = geoService.fetchTimeZone(userDto.getHomeAddress());
-        DadataAddressResponseDto job = geoService.fetchTimeZone(userDto.getJobAddress());
-        createOrUpdateUser(userDto, home, job);
+    @Transactional
+    public void markUserNotified(Integer userId, LocalDate today) {
+        User user = userRepository.findById(userId).orElse(null);
+        user.setLastNotificationDate(today);
+        userRepository.save(user);
     }
 
     @Transactional

@@ -35,9 +35,4 @@ public class StartCommand implements Command {
             eventPublisher.publishEvent(new MessageEvent(this, message));
         }
     }
-
-    @Override
-    public String getCommand() {
-        return CommandName.START.getName();
-    }
 }
