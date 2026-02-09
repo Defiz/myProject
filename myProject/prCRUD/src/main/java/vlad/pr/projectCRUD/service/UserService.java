@@ -14,8 +14,8 @@ import vlad.pr.projectCRUD.repository.RoleRepository;
 import vlad.pr.projectCRUD.repository.UserRepository;
 import vlad.pr.projectCRUD.security.UsersDetails;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -53,9 +53,22 @@ public class UserService implements UserDetailsService {
         return userMapper.toUserProfileDto(user);
     }
 
+    public UserProfileDto updateUserFromByName(String name, UserProfileDto userDto) {
+        User user = userRepository.findByName(name).orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+        boolean importantChanged = !Objects.equals(user.getHomeAddress(), userDto.getHomeAddress())
+                || !Objects.equals(user.getJobAddress(), userDto.getJobAddress())
+                || !Objects.equals(user.getJobTime(), userDto.getJobTime());
+        if (importantChanged) {
+            user.setNextNotificationUnix(null);
+        }
+        userMapper.updateUserFromDto(user, userDto);
+        User savedUser = userRepository.save(user);
+        return userMapper.toUserProfileDto(savedUser);
+    }
+
     @Transactional
     public UserRequestDto createUser(UserRequestDto userDto) {
-        User user = userMapper.toUser(userDto);
+        User user = userMapper.updateUserFromDto(userDto);
         userRepository.save(user);
         return userMapper.toUserRequestDto(user);
     }
@@ -63,7 +76,13 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void createOrUpdateUser(TelegramDto userDto, DadataAddressResponseDto home, DadataAddressResponseDto job) {
         User user = userRepository.findByTgChatId(userDto.getTgChatId()).orElseGet(User::new);
-        userMapper.toUser(user, userDto, home, job);
+        boolean importantChanged = !Objects.equals(user.getHomeAddress(), userDto.getHomeAddress())
+                || !Objects.equals(user.getJobAddress(), userDto.getJobAddress())
+                || !Objects.equals(user.getJobTime(), userDto.getJobTime());
+        if (importantChanged) {
+            user.setNextNotificationUnix(null);
+        }
+        userMapper.updateUserFromDto(user, userDto, home, job);
         if (user.getRoles() != null && user.getRoles().isEmpty()) {
             Role userRole = roleRepository.findByRole("ROLE_USER");
             user.setRoles(Set.of(userRole));

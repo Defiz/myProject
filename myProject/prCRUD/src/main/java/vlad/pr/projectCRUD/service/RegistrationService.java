@@ -26,7 +26,7 @@ public class RegistrationService {
         if (userRepository.existsByName(userDto.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Имя уже занято");
         }
-        User user = userMapper.toUser(userDto);
+        User user = userMapper.updateUserFromDto(userDto);
         Role userRole = roleRepository.findByRole("ROLE_USER");
         user.setRoles(Set.of(userRole));
         userRepository.save(user);

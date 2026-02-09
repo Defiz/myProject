@@ -1,4 +1,4 @@
-package vlad.pr.projectCRUD.config;
+package vlad.pr.projectCRUD.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

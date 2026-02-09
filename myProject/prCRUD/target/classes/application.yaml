@@ -22,8 +22,8 @@ spring:
         format_sql: true
 
 dadata:
-  token: "c7556dfd858a89a83b6bcf29b3a4f9cd87d266fb"
-  secret-token: "36d50b82413e19baf08a0b2d60893aca393a255e"
+  token: "78adbc9dace23b13c854aeff92669c38d2d389cb"
+  secret-token: "1aa7f06ab075087da6cb4d92236980a133f18263"
   api-url: "https://cleaner.dadata.ru/api/v1/clean/address"
 
 two-gis:

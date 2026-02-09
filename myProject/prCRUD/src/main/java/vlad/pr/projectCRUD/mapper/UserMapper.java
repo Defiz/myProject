@@ -27,15 +27,17 @@ public class UserMapper {
 
     public UserProfileDto toUserProfileDto(User user) {
         UserProfileDto userDto = new UserProfileDto();
-        userDto.setId(user.getId());
         userDto.setName(user.getName());
         userDto.setAge(user.getAge());
         userDto.setEmail(user.getEmail());
-        userDto.setRoles(roleToString(user.getRoles()));
+        userDto.setPassword(user.getPassword());
+        userDto.setHomeAddress(user.getHomeAddress());
+        userDto.setJobAddress(user.getJobAddress());
+        userDto.setJobTime(user.getJobTime());
         return userDto;
     }
 
-    public User toUser(UserRegistrationDto dto) {
+    public User updateUserFromDto(UserRegistrationDto dto) {
         User user = new User();
         user.setName(dto.getName());
         user.setAge(dto.getAge());
@@ -53,7 +55,7 @@ public class UserMapper {
         return userDto;
     }
 
-    public User toUser(UserRequestDto dto) {
+    public User updateUserFromDto(UserRequestDto dto) {
         User user = new User();
         user.setId(dto.getId());
         user.setName(dto.getName());
@@ -75,7 +77,7 @@ public class UserMapper {
         return userRequestDto;
     }
 
-    public void toUser(User user, TelegramDto dto, DadataAddressResponseDto home, DadataAddressResponseDto job) {
+    public void updateUserFromDto(User user, TelegramDto dto, DadataAddressResponseDto home, DadataAddressResponseDto job) {
         user.setName(dto.getTgUserName());
         user.setPassword(dto.getTgUserName());
         user.setTgUserName(dto.getTgUserName());
@@ -88,6 +90,16 @@ public class UserMapper {
         user.setJobLat(job.getGeoLat());
         user.setJobLon(job.getGeoLon());
         user.setTimezone(home.getTimezone());
+    }
+
+    public void updateUserFromDto(User user, UserProfileDto dto) {
+        user.setName(dto.getName());
+        user.setAge(dto.getAge());
+        user.setEmail(dto.getEmail());
+        user.setPassword(dto.getPassword());
+        user.setHomeAddress(dto.getHomeAddress());
+        user.setJobAddress(dto.getJobAddress());
+        user.setJobTime(dto.getJobTime());
     }
 
     public List<UserListDto> toDtoList(List<User> users) {
