@@ -17,7 +17,6 @@ public class CoreController {
 
     @PostMapping
     public ResponseEntity<Void> sendMessageTelegramUser(@RequestBody TelegramNotificationDto userDto) {
-        System.out.println("Telegram service received DTO: " + userDto);
         telegramMessageService.sendNotification(userDto);
         return ResponseEntity.ok().build();
     }
