@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import tools.jackson.databind.ObjectMapper;
 import vlad.pr.projectCRUD.dto.RoutePointDto;
 import vlad.pr.projectCRUD.dto.RoutingRequestDto;
 import vlad.pr.projectCRUD.dto.RoutingResponseDto;
@@ -87,7 +86,6 @@ public class NotificationService {
         String formattedTime = departuresTime.format(DateTimeFormatter.ofPattern("HH:mm"));
         String message = "Через 30 минут нужно выезжать. Точное время выезда: " + formattedTime;
         TelegramNotificationDto userDto = new TelegramNotificationDto(user.getTgChatId(), message);
-        System.out.println(userDto);
         restTemplate.postForObject(telegramServiceUrl, userDto, Void.class);
     }
 
@@ -99,9 +97,6 @@ public class NotificationService {
         body.setPoints(List.of(new RoutePointDto(homeLon, homeLat),
                 new RoutePointDto(jobLon, jobLat)));
         body.setUtc(departureUnix);
-        ObjectMapper mapper = new ObjectMapper();
-        String requestBody = mapper.writeValueAsString(body);
-        System.out.println("JSON: " + requestBody);
         HttpEntity<RoutingRequestDto> request = new HttpEntity<>(body, headers);
         ResponseEntity<RoutingResponseDto> response = restTemplate.postForEntity(twoGisProperties.getUrl(), request, RoutingResponseDto.class);
         return response.getBody().getResult().get(0).getTotal_duration();
