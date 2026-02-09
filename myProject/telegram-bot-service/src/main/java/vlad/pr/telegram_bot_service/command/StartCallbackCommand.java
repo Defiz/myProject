@@ -35,7 +35,7 @@ public class StartCallbackCommand implements Command {
                 userService.setStep(chatId, UserStep.WAIT_HONE_ADDRESS);
                 SendMessage message = SendMessage.builder()
                         .chatId(chatId)
-                        .text("Введите домашний адрес:")
+                        .text("Введите ваш домашний адрес (например: Москва, Кутузовский проспект 32):")
                         .build();
                 eventPublisher.publishEvent(new MessageEvent(this, message));
             }
@@ -43,7 +43,7 @@ public class StartCallbackCommand implements Command {
                 userService.setStep(chatId, UserStep.WAIT_JOB_ADDRESS);
                 SendMessage message = SendMessage.builder()
                         .chatId(chatId)
-                        .text("Введите адрес работы:")
+                        .text("Теперь введите ваш рабочий адрес:")
                         .build();
                 eventPublisher.publishEvent(new MessageEvent(this, message));
             }
@@ -51,7 +51,7 @@ public class StartCallbackCommand implements Command {
                 userService.setStep(chatId, UserStep.WAIT_JOB_TIME);
                 SendMessage message = SendMessage.builder()
                         .chatId(chatId)
-                        .text("Введите время начало работы:")
+                        .text("Введите время, к которому нужно быть на работе (в формате ЧЧ:MM, например 9:00):")
                         .build();
                 eventPublisher.publishEvent(new MessageEvent(this, message));
             }

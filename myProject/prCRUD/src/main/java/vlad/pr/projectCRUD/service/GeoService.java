@@ -17,6 +17,7 @@ import vlad.pr.projectCRUD.model.User;
 import vlad.pr.projectCRUD.repository.UserRepository;
 
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,6 +31,8 @@ public class GeoService {
     private final TwoGisProperties twoGisProperties;
     @Value("${telegram.service.url}")
     private String telegramServiceUrl;
+    @Value("${buffer-time-sec}")
+    private long bufferTimeSec;
 
     public void createUserWithGeoData(TelegramDto userDto) {
         DadataAddressResponseDto home = fetchGeoData(userDto.getHomeAddress());
@@ -50,64 +53,55 @@ public class GeoService {
     }
 
     @Scheduled(fixedRate = 60_000)
-    public void checkUsersForNotifications() {
-        long timeNow = Instant.now().getEpochSecond();
-        List<User> users = userRepository.findAll();
+    public void checkNotifications() {
+        long now = Instant.now().getEpochSecond();
+        List<User> users = userRepository.findAllByNextNotificationUnixIsNullOrNextNotificationUnixLessThanEqual(now);
         for (User user : users) {
-            ensureRouteCalculated(user);
-            if (shouldSendNotification(user, timeNow)) {
-                send(user);
-                ZoneOffset offset = ZoneOffset.of(user.getTimezone().replace("UTC", ""));
-                LocalDate today = LocalDate.now(offset);
-                userService.markUserNotified(user.getId(), today);
-            }
+            send(user);
+            recalculateAndSchedule(user);
         }
     }
 
-    public void ensureRouteCalculated(User user) {
-        int bufferTimeSec = 1800;
+    public void recalculateAndSchedule(User user) {
         ZoneOffset offset = ZoneOffset.of(user.getTimezone().replace("UTC", ""));
         LocalDate today = LocalDate.now(offset);
-        if (user.getRouteCalculatedDate() != null && user.getRouteCalculatedDate().equals(today)) {
-            return;
+        long now = Instant.now().getEpochSecond();
+        if (isWeekend(today)) {
+            today = getNextWorkingDay(today);
         }
-        DayOfWeek day = today.getDayOfWeek();
-        if (day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY) {
-            user.setRouteCalculatedDate(today);
-            user.setLeaveUnix(null);
-            user.setTravelTimeSec(null);
-            userRepository.save(user);
-            return;
+        long departuresUnix = convertToUnix(user.getTimezone(), user.getJobTime(), today);
+        long travelTimeSec;
+        if (user.getNextNotificationUnix() == null) {
+            if (departuresUnix <= now) {
+                today = getNextWorkingDay(today.plusDays(1));
+                departuresUnix = convertToUnix(user.getTimezone(), user.getJobTime(), today);
+            }
+            travelTimeSec = fetchTravelTime(user.getHomeLon(), user.getHomeLat(), user.getJobLon(), user.getJobLat(), departuresUnix);
+        } else {
+            travelTimeSec = departuresUnix - user.getNextNotificationUnix() - bufferTimeSec;
+            long leaveUnix = departuresUnix - travelTimeSec - bufferTimeSec;
+            if (leaveUnix <= now) {
+                today = getNextWorkingDay(today.plusDays(1));
+                departuresUnix = convertToUnix(user.getTimezone(), user.getJobTime(), today);
+                travelTimeSec = fetchTravelTime(user.getHomeLon(), user.getHomeLat(), user.getJobLon(), user.getJobLat(), departuresUnix);
+            }
         }
-        long departuresUnix = convertToUnix(user.getTimezone(), user.getJobTime());
-        long travelTimeSec = fetchTravelTime(user.getHomeLon(), user.getHomeLat(), user.getJobLon(), user.getJobLat(), departuresUnix);
         long leaveUnix = departuresUnix - travelTimeSec - bufferTimeSec;
-        user.setTravelTimeSec(travelTimeSec);
-        user.setLeaveUnix(leaveUnix);
-        user.setRouteCalculatedDate(today);
+        user.setNextNotificationUnix(leaveUnix);
         userRepository.save(user);
     }
 
-    public boolean shouldSendNotification(User user, long now) {
-        if (user.getLeaveUnix() == null) {
-            return false;
-        }
-        ZoneOffset offset = ZoneOffset.of(user.getTimezone().replace("UTC", ""));
-        LocalDate today = LocalDate.now(offset);
-        if (today.equals(user.getLastNotificationDate())) {
-            return false;
-        }
-        return now >= user.getLeaveUnix();
-    }
-
     public void send(User user) {
+        if (user.getNextNotificationUnix() == null) {
+            return;
+        }
+        long notifyUnix = user.getNextNotificationUnix();
         ZoneOffset offset = ZoneOffset.of(user.getTimezone().replace("UTC", ""));
-        LocalDateTime leaveDateTime = LocalDateTime.ofEpochSecond(user.getLeaveUnix(), 0, offset);
-        String message = String.format("Пора выезжать в %02d:%02d.\nВремя в пути: %d минут.",
-                leaveDateTime.getHour(),
-                leaveDateTime.getMinute(),
-                user.getTravelTimeSec() / 60);
+        LocalDateTime departuresTime = LocalDateTime.ofEpochSecond(notifyUnix + bufferTimeSec, 0, offset);
+        String formattedTime = departuresTime.format(DateTimeFormatter.ofPattern("HH:mm"));
+        String message = "Через 30 минут нужно выезжать. Точное время выезда: " + formattedTime;
         TelegramNotificationDto userDto = new TelegramNotificationDto(user.getTgChatId(), message);
+        System.out.println(userDto);
         restTemplate.postForObject(telegramServiceUrl, userDto, Void.class);
     }
 
@@ -127,18 +121,24 @@ public class GeoService {
         return response.getBody().getResult().get(0).getTotal_duration();
     }
 
-    public long convertToUnix(String timezone, String jobTime) {
+    public LocalDate getNextWorkingDay(LocalDate date) {
+        LocalDate result = date;
+        while (isWeekend(result)) {
+            result = result.plusDays(1);
+        }
+        return result;
+    }
+
+    public boolean isWeekend(LocalDate date) {
+        DayOfWeek day = date.getDayOfWeek();
+        return day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY;
+    }
+
+    public long convertToUnix(String timezone, String jobTime, LocalDate date) {
         LocalTime clientTime = LocalTime.parse(jobTime);
         ZoneOffset offset = ZoneOffset.of(timezone.replace("UTC", ""));
-        OffsetDateTime nowClient = OffsetDateTime.now(offset);
-        LocalDate todayClient = nowClient.toLocalDate();
-        LocalDateTime clientDataTime = LocalDateTime.of(todayClient, clientTime);
-        OffsetDateTime clientOffsetDataTime = clientDataTime.atOffset(offset);
-        if (!clientOffsetDataTime.isAfter(nowClient)) {
-            LocalDate tomorrowClient = todayClient.plusDays(1);
-            clientDataTime = LocalDateTime.of(tomorrowClient, clientTime);
-            clientOffsetDataTime = clientDataTime.atOffset(offset);
-        }
-        return clientOffsetDataTime.toEpochSecond();
+        LocalDateTime clientDateTime = LocalDateTime.of(date, clientTime);
+        OffsetDateTime clientOffsetDateTime = clientDateTime.atOffset(offset);
+        return clientOffsetDateTime.toEpochSecond();
     }
 }

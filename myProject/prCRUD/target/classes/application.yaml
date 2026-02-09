@@ -32,3 +32,5 @@ two-gis:
 telegram:
   service:
     url: "http://localhost:8081/api/core"
+
+buffer-time-sec: 1800

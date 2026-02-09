@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,12 +55,6 @@ public class User {
     @Column
     private double jobLon;
     @Column
-    private LocalDate lastNotificationDate;
-    @Column
-    private Long travelTimeSec;
-    @Column
-    private Long leaveUnix;
-    @Column
-    private LocalDate routeCalculatedDate;
+    private Long nextNotificationUnix;
 
 }

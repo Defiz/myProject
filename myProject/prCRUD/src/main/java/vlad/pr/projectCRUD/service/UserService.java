@@ -54,13 +54,6 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void markUserNotified(Integer userId, LocalDate today) {
-        User user = userRepository.findById(userId).orElse(null);
-        user.setLastNotificationDate(today);
-        userRepository.save(user);
-    }
-
-    @Transactional
     public UserRequestDto createUser(UserRequestDto userDto) {
         User user = userMapper.toUser(userDto);
         userRepository.save(user);
