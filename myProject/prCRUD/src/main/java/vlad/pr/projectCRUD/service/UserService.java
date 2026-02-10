@@ -53,6 +53,7 @@ public class UserService implements UserDetailsService {
         return userMapper.toUserProfileDto(user);
     }
 
+    @Transactional
     public UserProfileDto updateUserFromByName(String name, UserProfileDto userDto) {
         User user = userRepository.findByName(name).orElseThrow(() -> new UsernameNotFoundException("User not found!"));
         boolean importantChanged = !Objects.equals(user.getHomeAddress(), userDto.getHomeAddress())
