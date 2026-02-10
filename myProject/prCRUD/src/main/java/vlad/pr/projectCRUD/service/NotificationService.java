@@ -48,6 +48,21 @@ public class NotificationService {
     }
 
     public void recalculateAndSchedule(User user) {
+        LocalDate departureDate = resolveDepartureDate(user);
+        long departuresUnix = dataTimeUtil.convertToUnix(user.getTimezone(), user.getJobTime(), departureDate);
+        long travelTimeSec = resolveTravelTime(user, departuresUnix);
+        long leaveUnix = calculateLeaveUnix(departuresUnix, travelTimeSec);
+        if (leaveUnix <= Instant.now().getEpochSecond()) {
+            LocalDate nextDay = dataTimeUtil.getNextWorkingDay(departureDate.plusDays(1));
+            long newDeparturesUnix = dataTimeUtil.convertToUnix(user.getTimezone(), user.getJobTime(), nextDay);
+            travelTimeSec = resolveTravelTime(user, newDeparturesUnix);
+            leaveUnix = calculateLeaveUnix(newDeparturesUnix, travelTimeSec);
+        }
+        user.setNextNotificationUnix(leaveUnix);
+        userRepository.save(user);
+    }
+
+    public LocalDate resolveDepartureDate(User user) {
         ZoneOffset offset = ZoneOffset.of(user.getTimezone().replace("UTC", ""));
         LocalDate today = LocalDate.now(offset);
         long now = Instant.now().getEpochSecond();
@@ -55,25 +70,27 @@ public class NotificationService {
             today = dataTimeUtil.getNextWorkingDay(today);
         }
         long departuresUnix = dataTimeUtil.convertToUnix(user.getTimezone(), user.getJobTime(), today);
-        long travelTimeSec;
-        if (user.getNextNotificationUnix() == null) {
-            if (departuresUnix <= now) {
-                today = dataTimeUtil.getNextWorkingDay(today.plusDays(1));
-                departuresUnix = dataTimeUtil.convertToUnix(user.getTimezone(), user.getJobTime(), today);
-            }
-            travelTimeSec = fetchTravelTime(user.getHomeLon(), user.getHomeLat(), user.getJobLon(), user.getJobLat(), departuresUnix);
-        } else {
-            travelTimeSec = departuresUnix - user.getNextNotificationUnix() - bufferTimeSec;
-            long leaveUnix = departuresUnix - travelTimeSec - bufferTimeSec;
-            if (leaveUnix <= now) {
-                today = dataTimeUtil.getNextWorkingDay(today.plusDays(1));
-                departuresUnix = dataTimeUtil.convertToUnix(user.getTimezone(), user.getJobTime(), today);
-                travelTimeSec = fetchTravelTime(user.getHomeLon(), user.getHomeLat(), user.getJobLon(), user.getJobLat(), departuresUnix);
-            }
+        if (departuresUnix <= now) {
+            today = dataTimeUtil.getNextWorkingDay(today.plusDays(1));
         }
+        return today;
+    }
+
+    public long resolveTravelTime(User user, long departuresUnix) {
+        long now = Instant.now().getEpochSecond();
+        if (user.getNextNotificationUnix() == null) {
+            return fetchTravelTime(user.getHomeLon(), user.getHomeLat(), user.getJobLon(), user.getJobLat(), departuresUnix);
+        }
+        long travelTimeSec = departuresUnix - user.getNextNotificationUnix() - bufferTimeSec;
         long leaveUnix = departuresUnix - travelTimeSec - bufferTimeSec;
-        user.setNextNotificationUnix(leaveUnix);
-        userRepository.save(user);
+        if (leaveUnix <= now) {
+            return fetchTravelTime(user.getHomeLon(), user.getHomeLat(), user.getJobLon(), user.getJobLat(), departuresUnix);
+        }
+        return travelTimeSec;
+    }
+
+    public long calculateLeaveUnix(long departuresUnix, long travelTimeSec) {
+        return departuresUnix - travelTimeSec - bufferTimeSec;
     }
 
     public void send(User user) {

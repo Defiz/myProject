@@ -11,7 +11,7 @@ import vlad.pr.telegram_bot_service.service.TelegramMessageService;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/core")
+@RequestMapping("/api/notify")
 public class CoreController {
     private final TelegramMessageService telegramMessageService;
 
