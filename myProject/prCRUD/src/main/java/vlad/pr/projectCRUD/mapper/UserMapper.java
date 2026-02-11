@@ -96,7 +96,7 @@ public class UserMapper {
         user.setName(dto.getName());
         user.setAge(dto.getAge());
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
+     //   user.setPassword(dto.getPassword());
         user.setHomeAddress(dto.getHomeAddress());
         user.setJobAddress(dto.getJobAddress());
         user.setJobTime(dto.getJobTime());

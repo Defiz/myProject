@@ -46,29 +46,28 @@ public class NotificationService {
         List<User> users = userRepository.findAllByNextNotificationUnixIsNullOrNextNotificationUnixLessThanEqual(now);
         for (User user : users) {
             send(user);
-            recalculateAndSchedule(user);
+            recalculateAndSchedule(user, now);
         }
     }
 
-    public void recalculateAndSchedule(User user) {
-        LocalDate departureDate = resolveDepartureDate(user);
+    public void recalculateAndSchedule(User user, long now) {
+        LocalDate departureDate = resolveDepartureDate(user, now);
         long departuresUnix = dataTimeUtil.convertToUnix(user.getTimezone(), user.getJobTime(), departureDate);
-        long travelTimeSec = resolveTravelTime(user, departuresUnix);
+        long travelTimeSec = resolveTravelTime(user, departuresUnix, now);
         long leaveUnix = calculateLeaveUnix(departuresUnix, travelTimeSec);
-        if (leaveUnix <= Instant.now().getEpochSecond()) {
+        if (leaveUnix <= now) {
             LocalDate nextDay = dataTimeUtil.getNextWorkingDay(departureDate.plusDays(1));
             long newDeparturesUnix = dataTimeUtil.convertToUnix(user.getTimezone(), user.getJobTime(), nextDay);
-            travelTimeSec = resolveTravelTime(user, newDeparturesUnix);
+            travelTimeSec = resolveTravelTime(user, newDeparturesUnix, now);
             leaveUnix = calculateLeaveUnix(newDeparturesUnix, travelTimeSec);
         }
         user.setNextNotificationUnix(leaveUnix);
         userRepository.save(user);
     }
 
-    public LocalDate resolveDepartureDate(User user) {
+    public LocalDate resolveDepartureDate(User user, long now) {
         ZoneOffset offset = ZoneOffset.of(user.getTimezone().replace("UTC", ""));
         LocalDate today = LocalDate.now(offset);
-        long now = Instant.now().getEpochSecond();
         if (dataTimeUtil.isWeekend(today)) {
             today = dataTimeUtil.getNextWorkingDay(today);
         }
@@ -79,8 +78,7 @@ public class NotificationService {
         return today;
     }
 
-    public long resolveTravelTime(User user, long departuresUnix) {
-        long now = Instant.now().getEpochSecond();
+    public long resolveTravelTime(User user, long departuresUnix, long now) {
         if (user.getNextNotificationUnix() == null) {
             return fetchTravelTime(user.getHomeLon(), user.getHomeLat(), user.getJobLon(), user.getJobLat(), departuresUnix);
         }

@@ -63,6 +63,9 @@ public class UserService implements UserDetailsService {
             user.setNextNotificationUnix(null);
         }
         userMapper.updateUserFromDto(user, userDto);
+        if (userDto.getPassword() != null && !userDto.getPassword().isBlank()) {
+            user.setPassword(userDto.getPassword());
+        }
         User savedUser = userRepository.save(user);
         return userMapper.toUserProfileDto(savedUser);
     }
