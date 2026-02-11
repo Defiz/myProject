@@ -1,23 +1,25 @@
 package vlad.pr.projectCRUD.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import tools.jackson.databind.ObjectMapper;
 import vlad.pr.projectCRUD.properties.DadataProperties;
 import vlad.pr.projectCRUD.dto.*;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.*;
-import java.util.Collections;
 
 @AllArgsConstructor
 @Service
 public class GeoService {
     private final UserService userService;
-    private final RestTemplate restTemplate;
     private final DadataProperties dadataProperties;
+    private final ObjectMapper objectMapper;
+    private final HttpClient httpClient;
 
     public void createUserWithGeoData(TelegramDto userDto) {
         DadataAddressResponseDto home = fetchGeoData(userDto.getHomeAddress());
@@ -25,15 +27,19 @@ public class GeoService {
         userService.createOrUpdateUser(userDto, home, job);
     }
 
+    @SneakyThrows
     public DadataAddressResponseDto fetchGeoData(String address) {
-        String[] body = new String[]{address};
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        headers.set("Authorization", "Token " + dadataProperties.getToken());
-        headers.set("X-Secret", dadataProperties.getSecretToken());
-        HttpEntity<String[]> request = new HttpEntity<>(body, headers);
-        DadataAddressResponseDto[] response = restTemplate.postForObject(dadataProperties.getApiUrl(), request, DadataAddressResponseDto[].class);
-        return response[0];
+        String requestBody = objectMapper.writeValueAsString(new String[]{address});
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(dadataProperties.getApiUrl()))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Authorization", "Token " + dadataProperties.getToken())
+                .header("X-Secret", dadataProperties.getSecretToken())
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        DadataAddressResponseDto[] result = objectMapper.readValue(response.body(), DadataAddressResponseDto[].class);
+        return result[0];
     }
 }

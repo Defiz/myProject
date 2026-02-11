@@ -1,14 +1,12 @@
 package vlad.pr.projectCRUD.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import tools.jackson.databind.ObjectMapper;
 import vlad.pr.projectCRUD.dto.RoutePointDto;
 import vlad.pr.projectCRUD.dto.RoutingRequestDto;
 import vlad.pr.projectCRUD.dto.RoutingResponseDto;
@@ -18,6 +16,10 @@ import vlad.pr.projectCRUD.properties.TwoGisProperties;
 import vlad.pr.projectCRUD.repository.UserRepository;
 import vlad.pr.projectCRUD.util.DataTimeUtil;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,9 +30,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class NotificationService {
+    private final HttpClient httpClient;
+    private final ObjectMapper objectMapper;
     private final DataTimeUtil dataTimeUtil;
     private final UserRepository userRepository;
-    private final RestTemplate restTemplate;
     private final TwoGisProperties twoGisProperties;
     @Value("${telegram.service.url}")
     private String telegramServiceUrl;
@@ -93,6 +96,7 @@ public class NotificationService {
         return departuresUnix - travelTimeSec - bufferTimeSec;
     }
 
+    @SneakyThrows
     public void send(User user) {
         if (user.getNextNotificationUnix() == null) {
             return;
@@ -103,19 +107,30 @@ public class NotificationService {
         String formattedTime = departuresTime.format(DateTimeFormatter.ofPattern("HH:mm"));
         String message = "Через 30 минут нужно выезжать. Точное время выезда: " + formattedTime;
         TelegramNotificationDto userDto = new TelegramNotificationDto(user.getTgChatId(), message);
-        restTemplate.postForObject(telegramServiceUrl, userDto, Void.class);
+        String requestBody = objectMapper.writeValueAsString(userDto);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(telegramServiceUrl))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
+    @SneakyThrows
     public long fetchTravelTime(double homeLon, double homeLat, double jobLon, double jobLat, long departureUnix) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         RoutingRequestDto body = new RoutingRequestDto();
         body.setPoints(List.of(new RoutePointDto(homeLon, homeLat),
                 new RoutePointDto(jobLon, jobLat)));
         body.setUtc(departureUnix);
-        HttpEntity<RoutingRequestDto> request = new HttpEntity<>(body, headers);
-        ResponseEntity<RoutingResponseDto> response = restTemplate.postForEntity(twoGisProperties.getUrl(), request, RoutingResponseDto.class);
-        return response.getBody().getResult().get(0).getTotal_duration();
+        String requestBody = objectMapper.writeValueAsString(body);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(twoGisProperties.getUrl()))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        RoutingResponseDto routingResponse = objectMapper.readValue(response.body(), RoutingResponseDto.class);
+        return routingResponse.getResult().get(0).getTotal_duration();
     }
 }
