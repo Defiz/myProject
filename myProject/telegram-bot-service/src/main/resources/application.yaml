@@ -7,8 +7,8 @@ server:
 
 telegram:
   bot:
-    token: "8583495884:AAH9DCx7vRQF0tqAlbKoyP9awW-cu7qPA24"
+    token: ${TELEGRAM_BOT_TOKEN}
 
 core:
   service:
-    url: "http://localhost:8080/api/telegram"
+    url: ${CORE_SERVICE_URL}

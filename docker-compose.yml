@@ -1,0 +1,34 @@
+services:
+  core:
+   image: core_backend
+   build:
+     context: ./myProject/prCRUD
+   depends_on:
+     - db
+   environment:
+     DATASOURCE_USERNAME: ${DB_USER}
+     DATASOURCE_PASSWORD: ${DB_PASSWORD}
+     DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
+     DADATA_TOKEN: ${DADATA_TOKEN}
+     DADATA_SECRET_TOKEN: ${DADATA_SECRET_TOKEN}
+     DADATA_API_URL: ${DADATA_API_URL}
+     TWO_GIS_URL: ${TWO_GIS_URL}
+     TELEGRAM_SERVICE: ${TELEGRAM_SERVICE_URL}
+  telegram:
+  #TODO
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
