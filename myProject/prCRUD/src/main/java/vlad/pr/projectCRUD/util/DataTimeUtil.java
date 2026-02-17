@@ -3,6 +3,7 @@ package vlad.pr.projectCRUD.util;
 import org.springframework.stereotype.Component;
 
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class DataTimeUtil {
@@ -20,7 +21,8 @@ public class DataTimeUtil {
     }
 
     public long convertToUnix(String timezone, String jobTime, LocalDate date) {
-        LocalTime clientTime = LocalTime.parse(jobTime);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:mm");
+        LocalTime clientTime = LocalTime.parse(jobTime, formatter);
         ZoneOffset offset = ZoneOffset.of(timezone.replace("UTC", ""));
         LocalDateTime clientDateTime = LocalDateTime.of(date, clientTime);
         OffsetDateTime clientOffsetDateTime = clientDateTime.atOffset(offset);

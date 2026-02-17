@@ -1,23 +1,40 @@
 services:
   core:
-   image: core_backend
-   build:
-     context: ./myProject/prCRUD
-   depends_on:
-     - db
-   environment:
-     DATASOURCE_USERNAME: ${DB_USER}
-     DATASOURCE_PASSWORD: ${DB_PASSWORD}
-     DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
-     DADATA_TOKEN: ${DADATA_TOKEN}
-     DADATA_SECRET_TOKEN: ${DADATA_SECRET_TOKEN}
-     DADATA_API_URL: ${DADATA_API_URL}
-     TWO_GIS_URL: ${TWO_GIS_URL}
-     TELEGRAM_SERVICE: ${TELEGRAM_SERVICE_URL}
+    image: defiiz/core:latest
+    build:
+      context: ./myProject/prCRUD
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      ENVIRONMENT: ${ENVIRONMENT}
+      DATASOURCE_USERNAME: ${DB_USER}
+      DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      DADATA_TOKEN: ${DADATA_TOKEN}
+      DADATA_SECRET_TOKEN: ${DADATA_SECRET_TOKEN}
+      DADATA_API_URL: ${DADATA_API_URL}
+      TWO_GIS_URL: ${TWO_GIS_URL}
+      TELEGRAM_SERVICE_URL: ${TELEGRAM_SERVICE_URL}
   telegram:
-  #TODO
+    image: defiiz/telegram:latest
+    ports:
+      - "8081:8081"
+    build:
+      context: ./myProject/telegram-bot-service
+    depends_on:
+      - core
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      ENVIRONMENT: ${ENVIRONMENT}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      CORE_SERVICE_URL: ${CORE_SERVICE_URL}
   db:
     image: postgres
+    ports:
+      - "5433:5432"
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -28,7 +45,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql
 
 volumes:
   db-data:

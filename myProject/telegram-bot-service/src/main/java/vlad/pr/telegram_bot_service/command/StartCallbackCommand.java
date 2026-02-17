@@ -51,7 +51,7 @@ public class StartCallbackCommand implements Command {
                 userService.setStep(chatId, UserStep.WAIT_JOB_TIME);
                 SendMessage message = SendMessage.builder()
                         .chatId(chatId)
-                        .text("Введите время, к которому нужно быть на работе (в формате ЧЧ:MM, например 9:00):")
+                        .text("Введите время, к которому нужно быть на работе (в формате ЧЧ:MM, например 09:00):")
                         .build();
                 eventPublisher.publishEvent(new MessageEvent(this, message));
             }
