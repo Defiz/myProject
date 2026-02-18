@@ -49,5 +49,5 @@ jobs:
           username: vlad
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          source: "docker-compose.yml,.env"
+          source: "./docker-compose.yml,./.env"
           target: "~"
