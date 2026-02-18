@@ -18,6 +18,7 @@ services:
       DADATA_API_URL: ${DADATA_API_URL}
       TWO_GIS_URL: ${TWO_GIS_URL}
       TELEGRAM_SERVICE_URL: ${TELEGRAM_SERVICE_URL}
+
   telegram:
     image: defiiz/telegram:latest
     ports:
@@ -31,6 +32,7 @@ services:
       ENVIRONMENT: ${ENVIRONMENT}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       CORE_SERVICE_URL: ${CORE_SERVICE_URL}
+
   db:
     image: postgres
     ports:
