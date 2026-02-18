@@ -28,3 +28,11 @@ jobs:
           file: ./myProject/prCRUD/Dockerfile
           push: true
           tags: defiiz/notify-service:latest
+
+      - name: Telegram-Bot-Service Build adn Push to DockerHub
+        uses: docker/build-push-action@v2
+        with:
+          context: ./myProject/telegram-bot-service
+          file: ./myProject/telegram-bot-service/Dockerfile
+          push: true
+          tags: defiiz/telegram-bot-service:latest
