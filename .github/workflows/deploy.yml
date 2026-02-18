@@ -12,16 +12,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Logit to DockerHub
+      - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set up Docker Buildx
+      - name: Set up Docker buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Notify_Service Build and Push to DockerHub
+      - name: notify_service build and push to DockerHub
         uses: docker/build-push-action@v2
         with:
           context: ./myProject/prCRUD
@@ -29,10 +29,25 @@ jobs:
           push: true
           tags: defiiz/notify-service:latest
 
-      - name: Telegram-Bot-Service Build adn Push to DockerHub
+      - name: telegram-bot-service build and push to DockerHub
         uses: docker/build-push-action@v2
         with:
           context: ./myProject/telegram-bot-service
           file: ./myProject/telegram-bot-service/Dockerfile
           push: true
           tags: defiiz/telegram-bot-service:latest
+
+  push_compose_env:
+    name: Push docker-compose.yml and .env to remote server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Copy docker-compose.yml and .env to server
+        uses: appleboy/scp-action@master
+        with:
+          host: 194.87.238.231
+          username: vlad
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "docker-compose.yml,.env"
+          target: ":~"
