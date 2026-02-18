@@ -1,6 +1,6 @@
 services:
   core:
-    image: defiiz/core:latest
+    image: defiiz/notify-service:latest
     build:
       context: ./myProject/prCRUD
     ports:
@@ -20,7 +20,7 @@ services:
       TELEGRAM_SERVICE_URL: ${TELEGRAM_SERVICE_URL}
 
   telegram:
-    image: defiiz/telegram:latest
+    image: defiiz/telegram-bot-service:latest
     ports:
       - "8081:8081"
     build:
