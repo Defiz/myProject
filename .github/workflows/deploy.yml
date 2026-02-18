@@ -24,6 +24,7 @@ jobs:
       - name: Notify_Service Build and Push to DockerHub
         uses: docker/build-push-action@v2
         with:
+          context: ./myProject/prCRUD
           file: ./myProject/prCRUD/Dockerfile
           push: true
           tags: defiiz/notify-service:latest
