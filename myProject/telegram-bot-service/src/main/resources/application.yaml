@@ -1,8 +1,6 @@
 spring:
   application:
     name: telegram-bot-service
-    profiles:
-      active: ${SPRING_APPLICATION_PROFILE:dev}
 
 server:
   port: 8081
