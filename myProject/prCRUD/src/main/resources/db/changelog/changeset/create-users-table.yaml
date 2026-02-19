@@ -1,0 +1,77 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-users-table
+      author: Vlad
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    unique: true
+
+              - column:
+                  name: age
+                  type: INT
+
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+
+              - column:
+                  name: tg_chat_id
+                  type: INT
+
+              - column:
+                  name: tg_user_name
+                  type: VARCHAR(255)
+
+              - column:
+                  name: home_address
+                  type: VARCHAR(255)
+
+              - column:
+                  name: job_address
+                  type: VARCHAR(255)
+
+              - column:
+                  name: job_time
+                  type: VARCHAR(255)
+
+              - column:
+                  name: timezone
+                  type: VARCHAR(100)
+
+              - column:
+                  name: home_lat
+                  type: DOUBLE
+
+              - column:
+                  name: home_lon
+                  type: DOUBLE
+
+              - column:
+                  name: job_lat
+                  type: DOUBLE
+
+              - column:
+                 name: job_lon
+                 type: DOUBLE
+
+              - column:
+                 name: next_notification_unix
+                 type: BIGINT
