@@ -1,5 +1,6 @@
 databaseChangeLog:
   - changeSet:
+      id: insert-default-roles
       author: Vlad
       changes:
         - insert:
