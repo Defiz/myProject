@@ -13,7 +13,7 @@ spec:
         app: telegram-bot
     spec:
       containers:
-        - name: telegram
+        - name: telegram-bot
           image: defiiz/telegram-bot-service:latest
           ports:
             - containerPort: 8081
