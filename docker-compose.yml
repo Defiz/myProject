@@ -1,5 +1,5 @@
 services:
-  core:
+  notify-service:
     image: defiiz/notify-service:latest
     build:
       context: ./myProject/prCRUD
@@ -19,14 +19,14 @@ services:
       TWO_GIS_URL: ${TWO_GIS_URL}
       TELEGRAM_SERVICE_URL: ${TELEGRAM_SERVICE_URL}
 
-  telegram:
+  telegram-bot:
     image: defiiz/telegram-bot-service:latest
     ports:
       - "8081:8081"
     build:
       context: ./myProject/telegram-bot-service
     depends_on:
-      - core
+      - notify-service
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
       ENVIRONMENT: ${ENVIRONMENT}

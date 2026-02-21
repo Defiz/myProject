@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notify-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notify-service
+  template:
+    metadata:
+      labels:
+        app: notify-service
+    spec:
+      containers:
+        - name: notify
+          image: defiiz/notify-service:latest
+          ports:
+            - containerPort: 8080
