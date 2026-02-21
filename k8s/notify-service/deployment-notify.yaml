@@ -13,7 +13,10 @@ spec:
         app: notify-service
     spec:
       containers:
-        - name: notify
+        - name: notify-service
           image: defiiz/notify-service:latest
           ports:
             - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: notify

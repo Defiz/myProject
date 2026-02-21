@@ -17,3 +17,6 @@ spec:
           image: defiiz/telegram-bot-service:latest
           ports:
             - containerPort: 8081
+          envFrom:
+            - secretRef:
+                name: telegram-bot
