@@ -6,3 +6,4 @@
 
 #Environment variables
 .env
+k8s/*/*.env
