@@ -1,5 +1,7 @@
 package vlad.pr.projectCRUD.repository;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import vlad.pr.projectCRUD.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -15,5 +17,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     boolean existsByName(String name);
 
-    List<User> findAllByNextNotificationUnixIsNullOrNextNotificationUnixLessThanEqual(long now);
+    @Query("select UserNotification.user FROM UserNotification " +
+            "where nextNotificationUnix IS NULL OR nextNotificationUnix <= :now")
+    List<User> findAllUsersWithNotificationDue(@Param("now") long now);
 }

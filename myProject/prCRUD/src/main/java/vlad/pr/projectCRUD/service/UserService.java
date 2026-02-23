@@ -56,11 +56,11 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserProfileDto updateUserFromByName(String name, UserProfileDto userDto) {
         User user = userRepository.findByName(name).orElseThrow(() -> new UsernameNotFoundException("User not found!"));
-        boolean importantChanged = !Objects.equals(user.getHomeAddress(), userDto.getHomeAddress())
-                || !Objects.equals(user.getJobAddress(), userDto.getJobAddress())
-                || !Objects.equals(user.getJobTime(), userDto.getJobTime());
+        boolean importantChanged = !Objects.equals(user.getUserLocationInfo().getHomeAddress(), userDto.getHomeAddress())
+                || !Objects.equals(user.getUserLocationInfo().getJobAddress(), userDto.getJobAddress())
+                || !Objects.equals(user.getUserLocationInfo().getJobTime(), userDto.getJobTime());
         if (importantChanged) {
-            user.setNextNotificationUnix(null);
+            user.getUserNotification().setNextNotificationUnix(null);
         }
         userMapper.updateUserFromDto(user, userDto);
         if (userDto.getPassword() != null && !userDto.getPassword().isBlank()) {
@@ -80,11 +80,11 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void createOrUpdateUser(TelegramDto userDto, DadataAddressResponseDto home, DadataAddressResponseDto job) {
         User user = userRepository.findByTgChatId(userDto.getTgChatId()).orElseGet(User::new);
-        boolean importantChanged = !Objects.equals(user.getHomeAddress(), userDto.getHomeAddress())
-                || !Objects.equals(user.getJobAddress(), userDto.getJobAddress())
-                || !Objects.equals(user.getJobTime(), userDto.getJobTime());
+        boolean importantChanged = !Objects.equals(user.getUserLocationInfo().getHomeAddress(), userDto.getHomeAddress())
+                || !Objects.equals(user.getUserLocationInfo().getJobAddress(), userDto.getJobAddress())
+                || !Objects.equals(user.getUserLocationInfo().getJobTime(), userDto.getJobTime());
         if (importantChanged) {
-            user.setNextNotificationUnix(null);
+            user.getUserNotification().setNextNotificationUnix(null);
         }
         userMapper.updateUserFromDto(user, userDto, home, job);
         if (user.getRoles() != null && user.getRoles().isEmpty()) {

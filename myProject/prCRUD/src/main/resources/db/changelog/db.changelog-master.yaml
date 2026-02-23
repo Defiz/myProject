@@ -7,3 +7,13 @@ databaseChangeLog:
       file: db/changelog/changeset/create-users-roles-table.yaml
   - include:
       file: db/changelog/changeset/insert-default-roles.yaml
+  - include:
+      file: db/changelog/changeset/create-users-location-table.yaml
+  - include:
+      file: db/changelog/changeset/create-users-notification-table.yaml
+  - include:
+      file: db/changelog/changeset/migrate-location-data.yaml
+  - include:
+      file: db/changelog/changeset/migrate-notification-data.yaml
+  - include:
+      file: db/changelog/changeset/drop-old-location-and-notification-columns-in-table-users.yaml

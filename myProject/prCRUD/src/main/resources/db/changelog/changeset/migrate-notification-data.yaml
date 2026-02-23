@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: migration-notification-data
+      author: Vlad
+      changes:
+        - sql: |
+            INSERT INTO user_notification (id, next_notification_unix)
+            SELECT id, next_notification_unix
+            FROM users

@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: drop-old-location-and-notification-columns-in-table-users
+      author: Vlad
+      changes:
+        - dropColumn:
+            tableName: users
+            columnName: home_address
+        - dropColumn:
+            tableName: users
+            columnName: job_address
+        - dropColumn:
+            tableName: users
+            columnName: job_time
+        - dropColumn:
+            tableName: users
+            columnName: home_lat
+        - dropColumn:
+            tableName: users
+            columnName: home_lon
+        - dropColumn:
+            tableName: users
+            columnName: job_lat
+        - dropColumn:
+            tableName: users
+            columnName: job_lon
+        - dropColumn:
+            tableName: users
+            columnName: next_notification_unix

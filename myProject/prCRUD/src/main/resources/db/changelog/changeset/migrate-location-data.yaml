@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: migration-location-data
+      author: Vlad
+      changes:
+        - sql: |
+            INSERT INTO user_location_info (id, home_address, job_address, job_time, home_lat, home_lon, job_lat, job_lon)
+            SELECT id, home_address, job_address, job_time, home_lat, home_lon, job_lat, job_lon
+            FROM users;

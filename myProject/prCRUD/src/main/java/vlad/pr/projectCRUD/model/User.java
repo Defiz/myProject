@@ -39,22 +39,10 @@ public class User {
     @Column
     private String tgUserName;
     @Column
-    private String homeAddress;
-    @Column
-    private String jobAddress;
-    @Column
-    private String jobTime;
-    @Column
     private String timezone;
-    @Column
-    private double homeLat;
-    @Column
-    private double homeLon;
-    @Column
-    private double jobLat;
-    @Column
-    private double jobLon;
-    @Column
-    private Long nextNotificationUnix;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserLocationInfo userLocationInfo;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserNotification userNotification;
 
 }

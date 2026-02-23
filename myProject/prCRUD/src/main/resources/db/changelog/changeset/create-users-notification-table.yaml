@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-users-notification-table
+      author: Vlad
+      changes:
+        - createTable:
+            tableName: user_notification
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: next_notification_unix
+                  type: BIGINT
+        - addForeignKeyConstraint:
+            baseTableName: user_notification
+            baseColumnNames: id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_user_notification_user
+            onDelete: CASCADE

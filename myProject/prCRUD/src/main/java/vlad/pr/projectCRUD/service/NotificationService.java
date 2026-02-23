@@ -42,7 +42,7 @@ public class NotificationService {
     @Scheduled(fixedRate = 60_000)
     public void checkNotifications() {
         long now = Instant.now().getEpochSecond();
-        List<User> users = userRepository.findAllByNextNotificationUnixIsNullOrNextNotificationUnixLessThanEqual(now);
+        List<User> users = userRepository.findAllUsersWithNotificationDue(now);
         for (User user : users) {
             send(user);
             recalculateAndSchedule(user, now);
@@ -51,16 +51,16 @@ public class NotificationService {
 
     public void recalculateAndSchedule(User user, long now) {
         LocalDate departureDate = resolveDepartureDate(user, now);
-        long departuresUnix = dataTimeUtil.convertToUnix(user.getTimezone(), user.getJobTime(), departureDate);
+        long departuresUnix = dataTimeUtil.convertToUnix(user.getTimezone(), user.getUserLocationInfo().getJobTime(), departureDate);
         long travelTimeSec = resolveTravelTime(user, departuresUnix, now);
         long leaveUnix = calculateLeaveUnix(departuresUnix, travelTimeSec);
         if (leaveUnix <= now) {
             LocalDate nextDay = dataTimeUtil.getNextWorkingDay(departureDate.plusDays(1));
-            long newDeparturesUnix = dataTimeUtil.convertToUnix(user.getTimezone(), user.getJobTime(), nextDay);
+            long newDeparturesUnix = dataTimeUtil.convertToUnix(user.getTimezone(), user.getUserLocationInfo().getJobTime(), nextDay);
             travelTimeSec = resolveTravelTime(user, newDeparturesUnix, now);
             leaveUnix = calculateLeaveUnix(newDeparturesUnix, travelTimeSec);
         }
-        user.setNextNotificationUnix(leaveUnix);
+        user.getUserNotification().setNextNotificationUnix(leaveUnix);
         userRepository.save(user);
     }
 
@@ -70,7 +70,7 @@ public class NotificationService {
         if (dataTimeUtil.isWeekend(today)) {
             today = dataTimeUtil.getNextWorkingDay(today);
         }
-        long departuresUnix = dataTimeUtil.convertToUnix(user.getTimezone(), user.getJobTime(), today);
+        long departuresUnix = dataTimeUtil.convertToUnix(user.getTimezone(), user.getUserLocationInfo().getJobTime(), today);
         if (departuresUnix <= now) {
             today = dataTimeUtil.getNextWorkingDay(today.plusDays(1));
         }
@@ -78,13 +78,13 @@ public class NotificationService {
     }
 
     public long resolveTravelTime(User user, long departuresUnix, long now) {
-        if (user.getNextNotificationUnix() == null) {
-            return fetchTravelTime(user.getHomeLon(), user.getHomeLat(), user.getJobLon(), user.getJobLat(), departuresUnix);
+        if (user.getUserNotification().getNextNotificationUnix() == null) {
+            return fetchTravelTime(user.getUserLocationInfo().getHomeLon(), user.getUserLocationInfo().getHomeLat(), user.getUserLocationInfo().getJobLon(), user.getUserLocationInfo().getJobLat(), departuresUnix);
         }
-        long travelTimeSec = departuresUnix - user.getNextNotificationUnix() - bufferTimeSec;
+        long travelTimeSec = departuresUnix - user.getUserNotification().getNextNotificationUnix() - bufferTimeSec;
         long leaveUnix = departuresUnix - travelTimeSec - bufferTimeSec;
         if (leaveUnix <= now) {
-            return fetchTravelTime(user.getHomeLon(), user.getHomeLat(), user.getJobLon(), user.getJobLat(), departuresUnix);
+            return fetchTravelTime(user.getUserLocationInfo().getHomeLon(), user.getUserLocationInfo().getHomeLat(), user.getUserLocationInfo().getJobLon(), user.getUserLocationInfo().getJobLat(), departuresUnix);
         }
         return travelTimeSec;
     }
@@ -95,10 +95,10 @@ public class NotificationService {
 
     @SneakyThrows
     public void send(User user) {
-        if (user.getNextNotificationUnix() == null) {
+        if (user.getUserNotification().getNextNotificationUnix() == null) {
             return;
         }
-        long notifyUnix = user.getNextNotificationUnix();
+        long notifyUnix = user.getUserNotification().getNextNotificationUnix();
         ZoneOffset offset = ZoneOffset.of(user.getTimezone().replace("UTC", ""));
         LocalDateTime departuresTime = LocalDateTime.ofEpochSecond(notifyUnix + bufferTimeSec, 0, offset);
         String formattedTime = departuresTime.format(DateTimeFormatter.ofPattern("HH:mm"));

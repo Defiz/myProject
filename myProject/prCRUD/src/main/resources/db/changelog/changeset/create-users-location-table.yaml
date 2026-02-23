@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-users-location-table
+      author: Vlad
+      changes:
+        - createTable:
+            tableName: user_location_info
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: home_address
+                  type: VARCHAR(255)
+              - column:
+                  name: job_address
+                  type: VARCHAR(255)
+              - column:
+                  name: job_time
+                  type: VARCHAR(255)
+              - column:
+                  name: home_lat
+                  type: DOUBLE
+              - column:
+                  name: home_lon
+                  type: DOUBLE
+              - column:
+                  name: job_lat
+                  type: DOUBLE
+              - column:
+                  name: job_lon
+                  type: DOUBLE
+        - addForeignKeyConstraint:
+            baseTableName: user_location_info
+            baseColumnNames: id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_user_location_user
+            onDelete: CASCADE
