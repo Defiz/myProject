@@ -42,17 +42,15 @@ public class User {
     private UserLocationInfo userLocationInfo;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserNotification userNotification;
-    @PrePersist
-    private void prePersist() {
-        if (userLocationInfo == null) {
-            this.userLocationInfo = new UserLocationInfo();
-            this.userLocationInfo.setUser(this);
-        }
-        if (userNotification == null) {
-            this.userNotification = new UserNotification();
-            this.userNotification.setUser(this);
-        }
-    }
-
-
+//    @PrePersist
+//    private void prePersist() {
+//        if (userLocationInfo == null) {
+//            this.userLocationInfo = new UserLocationInfo();
+//            this.userLocationInfo.setUser(this);
+//        }
+//        if (userNotification == null) {
+//            this.userNotification = new UserNotification();
+//            this.userNotification.setUser(this);
+//        }
+//    }
 }

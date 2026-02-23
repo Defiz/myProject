@@ -10,6 +10,8 @@ import vlad.pr.projectCRUD.dto.*;
 import vlad.pr.projectCRUD.mapper.UserMapper;
 import vlad.pr.projectCRUD.model.Role;
 import vlad.pr.projectCRUD.model.User;
+import vlad.pr.projectCRUD.model.UserLocationInfo;
+import vlad.pr.projectCRUD.model.UserNotification;
 import vlad.pr.projectCRUD.repository.RoleRepository;
 import vlad.pr.projectCRUD.repository.UserRepository;
 import vlad.pr.projectCRUD.security.UsersDetails;
@@ -56,10 +58,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserProfileDto updateUserFromByName(String name, UserProfileDto userDto) {
         User user = userRepository.findByName(name).orElseThrow(() -> new UsernameNotFoundException("User not found!"));
-        boolean importantChanged = !Objects.equals(user.getUserLocationInfo().getHomeAddress(), userDto.getHomeAddress())
-                || !Objects.equals(user.getUserLocationInfo().getJobAddress(), userDto.getJobAddress())
-                || !Objects.equals(user.getUserLocationInfo().getJobTime(), userDto.getJobTime());
-        if (importantChanged) {
+        if (hasImportantLocationChanged(user, userDto)) {
             user.getUserNotification().setNextNotificationUnix(null);
         }
         userMapper.updateUserFromDto(user, userDto);
@@ -79,11 +78,8 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void createOrUpdateUser(TelegramDto userDto, DadataAddressResponseDto home, DadataAddressResponseDto job) {
-        User user = userRepository.findByTgChatId(userDto.getTgChatId()).orElseGet(User::new);
-        boolean importantChanged = !Objects.equals(user.getUserLocationInfo().getHomeAddress(), userDto.getHomeAddress())
-                || !Objects.equals(user.getUserLocationInfo().getJobAddress(), userDto.getJobAddress())
-                || !Objects.equals(user.getUserLocationInfo().getJobTime(), userDto.getJobTime());
-        if (importantChanged) {
+        User user = userRepository.findByTgChatId(userDto.getTgChatId()).orElseGet(this::createNewUserWithRelations);
+        if (hasImportantLocationChanged(user, userDto)) {
             user.getUserNotification().setNextNotificationUnix(null);
         }
         userMapper.updateUserFromDto(user, userDto, home, job);
@@ -113,4 +109,28 @@ public class UserService implements UserDetailsService {
         userRepository.deleteById(id);
     }
 
+    private User createNewUserWithRelations() {
+        User user = new User();
+        UserLocationInfo locationInfo = new UserLocationInfo();
+        locationInfo.setUser(user);
+        user.setUserLocationInfo(locationInfo);
+        UserNotification notification = new UserNotification();
+        notification.setUser(user);
+        user.setUserNotification(notification);
+        return user;
+    }
+
+    private boolean hasImportantLocationChanged(User user, TelegramDto userDto) {
+        UserLocationInfo userLocation = user.getUserLocationInfo();
+        return !Objects.equals(userLocation.getHomeAddress(), userDto.getHomeAddress())
+                || !Objects.equals(userLocation.getJobAddress(), userDto.getJobAddress())
+                || !Objects.equals(userLocation.getJobTime(), userDto.getJobTime());
+    }
+
+    private boolean hasImportantLocationChanged(User user, UserProfileDto dto) {
+        UserLocationInfo loc = user.getUserLocationInfo();
+        return !Objects.equals(loc.getHomeAddress(), dto.getHomeAddress())
+                || !Objects.equals(loc.getJobAddress(), dto.getJobAddress())
+                || !Objects.equals(loc.getJobTime(), dto.getJobTime());
+    }
 }
