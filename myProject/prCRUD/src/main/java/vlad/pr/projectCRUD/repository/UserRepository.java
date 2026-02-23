@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     boolean existsByName(String name);
 
-    @Query("select UserNotification.user FROM UserNotification " +
-            "where nextNotificationUnix IS NULL OR nextNotificationUnix <= :now")
+    @Query("select un.user FROM UserNotification un " +
+            "where un.nextNotificationUnix IS NULL OR un.nextNotificationUnix <= :now")
     List<User> findAllUsersWithNotificationDue(@Param("now") long now);
 }
