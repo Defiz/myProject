@@ -1,7 +1,6 @@
 package vlad.pr.projectCRUD.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +12,6 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -44,5 +42,17 @@ public class User {
     private UserLocationInfo userLocationInfo;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserNotification userNotification;
+    @PrePersist
+    private void prePersist() {
+        if (userLocationInfo == null) {
+            this.userLocationInfo = new UserLocationInfo();
+            this.userLocationInfo.setUser(this);
+        }
+        if (userNotification == null) {
+            this.userNotification = new UserNotification();
+            this.userNotification.setUser(this);
+        }
+    }
+
 
 }
