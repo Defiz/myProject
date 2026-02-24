@@ -40,7 +40,7 @@ public class NotificationService {
     private long bufferTimeSec;
     private static final long NOTIFICATION_SAFETY_WINDOW_SEC = 60;
 
-    @Scheduled(fixedRate = 40_000)
+    @Scheduled(fixedRate = 60_000)
     public void checkNotifications() {
         long now = Instant.now().getEpochSecond();
         List<User> users = userRepository.findAllUsersWithNotificationDue(now);
