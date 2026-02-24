@@ -38,6 +38,7 @@ public class NotificationService {
     private String telegramServiceUrl;
     @Value("${buffer-time-sec}")
     private long bufferTimeSec;
+    private static final long NOTIFICATION_SAFETY_WINDOW_SEC = 60;
 
     @Scheduled(fixedRate = 40_000)
     public void checkNotifications() {
@@ -83,7 +84,7 @@ public class NotificationService {
         }
         long travelTimeSec = departuresUnix - user.getUserNotification().getNextNotificationUnix() - bufferTimeSec;
         long leaveUnix = departuresUnix - travelTimeSec - bufferTimeSec;
-        if (leaveUnix <= now) {
+        if (leaveUnix <= now + NOTIFICATION_SAFETY_WINDOW_SEC) {
             return fetchTravelTime(user.getUserLocationInfo().getHomeLon(), user.getUserLocationInfo().getHomeLat(), user.getUserLocationInfo().getJobLon(), user.getUserLocationInfo().getJobLat(), departuresUnix);
         }
         return travelTimeSec;
