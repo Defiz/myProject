@@ -39,7 +39,7 @@ public class NotificationService {
     @Value("${buffer-time-sec}")
     private long bufferTimeSec;
 
-    @Scheduled(fixedRate = 60_000)
+    @Scheduled(fixedRate = 80_000)
     public void checkNotifications() {
         long now = Instant.now().getEpochSecond();
         List<User> users = userRepository.findAllUsersWithNotificationDue(now);
